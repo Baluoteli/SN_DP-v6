@@ -139,7 +139,9 @@ public:
 	BOOL setChannelAndRole(CHANNEL_PROFILE_TYPE ch_type, CLIENT_ROLE_TYPE cl_type, char* permissionkey);
 	BOOL enableOBServer(BOOL bAudioEnable, BOOL bVideoEnable);
 	BOOL setDevices(std::string cMic, std::string cCamera);
-	BOOL setAudioAES(BOOL bEnable = FALSE);
+	BOOL setAudioAEC(BOOL bEnable = FALSE);
+	BOOL setAudioNS(BOOL bEnable  = FALSE);
+	BOOL AgoraManager::setAudioAgcGain(BOOL bEnable = FALSE);
 	BOOL closeDevices();
 	BOOL setDevicesParam();
 	BOOL initEngine(char* app_id);

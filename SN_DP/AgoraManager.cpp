@@ -434,7 +434,7 @@ BOOL AgoraManager::setDevices(std::string cMic, std::string cCamera)
 	return TRUE;
 }
 
-BOOL AgoraManager::setAudioAES(BOOL bEnable /*= FALSE*/)
+BOOL AgoraManager::setAudioAEC(BOOL bEnable /*= FALSE*/)
 {
 	int nRet = 0;
 
@@ -444,6 +444,34 @@ BOOL AgoraManager::setAudioAES(BOOL bEnable /*= FALSE*/)
 		nRet = apm->setParameters("{\"che.audio.enable.aec\":true}");
 	else
 		nRet = apm->setParameters("{\"che.audio.enable.aec\":false}");
+
+	return nRet == 0 ? TRUE : FALSE;
+}
+
+BOOL AgoraManager::setAudioNS(BOOL bEnable /*= FALSE*/)
+{
+	int nRet = 0;
+
+	AParameter apm(*this->pRTCEngine);
+
+	if (bEnable)
+		nRet = apm->setParameters("{\"che.audio.enable.ns\":true}");
+	else
+		nRet = apm->setParameters("{\"che.audio.enable.ns\":false}");
+
+	return nRet == 0 ? TRUE : FALSE;
+}
+
+BOOL AgoraManager::setAudioAgcGain(BOOL bEnable /*= FALSE*/)
+{
+	int nRet = 0;
+
+	AParameter apm(*this->pRTCEngine);
+
+	if (bEnable)
+		nRet = apm->setParameters("{\"che.audio.agc_gain\":true}");
+	else
+		nRet = apm->setParameters("{\"che.audio.agc_gain\":false}");
 
 	return nRet == 0 ? TRUE : FALSE;
 }
@@ -504,8 +532,8 @@ BOOL AgoraManager::initParam()
 	this->ChatRoomInfo.bMix = TRUE;
 	this->ChatRoomInfo.bPublishing = FALSE;
 	this->ChatRoomInfo.bWaterMark = TRUE;
-	this->ChatRoomInfo.display_height = 480;
-	this->ChatRoomInfo.display_width = 640;
+	this->ChatRoomInfo.display_height = 600;
+	this->ChatRoomInfo.display_width = 800;
 	this->ChatRoomInfo.nBitRateVideo = 400;
 	this->ChatRoomInfo.nFps = 15;
 	this->ChatRoomInfo.nHeight = 360;
@@ -525,12 +553,12 @@ BOOL AgoraManager::initParam()
 	this->RtmpPushInfo.port = "1935";
 	this->RtmpPushInfo.appname = "liverecord";
 	//this->RtmpPushInfo.streamname = "v587";
-	this->RtmpPushInfo.bitrate = 500;
+	this->RtmpPushInfo.bitrate = 1000;
 	this->RtmpPushInfo.brtmppush = TRUE;
 	this->RtmpPushInfo.brtmpset = TRUE;
 	this->RtmpPushInfo.fps = 15;
-	this->RtmpPushInfo.height = 480;
-	this->RtmpPushInfo.width = 640;
+	this->RtmpPushInfo.height = 600;
+	this->RtmpPushInfo.width = 800;
 	return TRUE;
 }
 
@@ -669,7 +697,17 @@ int32_t AgoraManager::start()
 
 	res = 9;
 	writelog("setAudioAES false");
-	if (!setAudioAES(FALSE))
+	if (!setAudioAEC(FALSE))
+		goto StartError;
+
+	res = 10;
+	writelog("setAudioNS false");
+	if (!setAudioNS(FALSE))
+		goto StartError;
+
+	res = 11;
+	writelog("setAudioAgcGain false");
+	if (!setAudioAgcGain(FALSE))
 		goto StartError;
 
 	res = 10;

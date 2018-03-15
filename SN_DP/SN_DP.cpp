@@ -219,6 +219,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	GdiplusStartup(&gditoken, &gdiinput, NULL);
 
 	SetUnhandledExceptionFilter(SNDP_UnhandledExceptionFilter);
+	writelog("VideoDP up");
 	// 执行应用程序初始化: 
 	if (!InitInstance(hInstance, nCmdShow))
 	{

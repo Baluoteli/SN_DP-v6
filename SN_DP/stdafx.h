@@ -30,9 +30,10 @@ using namespace agora::media;
 // #include "IAgoraMediaEngine.h"
 // #include "IAgoraRtcEngine.h"
 #include "AGEngineEventHandler.h"
-//#define APP_ID "570465840e604903811de2f3a72d174b"
+//#define APP_ID "570465840e604903811de2f3a72d174b"		//六间房正式ID
 //#define APP_ID "f4637604af81440596a54254d53ade20"
-#define APP_ID "aab8b8f5a8cd4469a63042fcfafe7063"
+#define APP_ID "aab8b8f5a8cd4469a63042fcfafe7063"	//声网测试ID
+//#define NEED_PING
 
 
 #define NCLIENT_WIDTH 640

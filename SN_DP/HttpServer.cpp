@@ -305,10 +305,6 @@ bool handlevideoquit(std::string &reply)
 
 bool handlevideoheartbeat(std::string &reply)
 {
-#ifdef NEED_PING
-	KillTimer(hRenderWnd, TimerID_SDPlay);
-	SetTimer(hRenderWnd, TimerID_SDPlay, PING_TIME_FLASH, NULL);
-#endif
 	_errmsg_setter es(reply);
 	if (!pAgoraManager->ChatRoomInfo.bPublishing)// no working
 	{
@@ -325,11 +321,15 @@ bool handlevideoheartbeat(std::string &reply)
 		{
 			sprintf_s(buff, sizeof(buff), "%d", nActCode);
 			string errCode = buff;
-			es.set(nLastErrorCode);
+			es.set(48);
 			es.set(errCode);
 		}
 		return true;
 	}
+#ifdef NEED_PING
+	KillTimer(hRenderWnd, TimerID_SDPlay);
+	SetTimer(hRenderWnd, TimerID_SDPlay, PING_TIME_FLASH, NULL);
+#endif
 	return true;
 }
 
