@@ -462,16 +462,16 @@ BOOL AgoraManager::setAudioNS(BOOL bEnable /*= FALSE*/)
 	return nRet == 0 ? TRUE : FALSE;
 }
 
-BOOL AgoraManager::setAudioAgcGain(BOOL bEnable /*= FALSE*/)
+BOOL AgoraManager::setAudioAgcOn(BOOL bEnable /*= FALSE*/)
 {
 	int nRet = 0;
 
 	AParameter apm(*this->pRTCEngine);
 
 	if (bEnable)
-		nRet = apm->setParameters("{\"che.audio.agc_gain\":true}");
+		nRet = apm->setParameters("{\"che.audio.agcOn\":true}");
 	else
-		nRet = apm->setParameters("{\"che.audio.agc_gain\":false}");
+		nRet = apm->setParameters("{\"che.audio.agc\":false}");
 
 	return nRet == 0 ? TRUE : FALSE;
 }
@@ -707,7 +707,7 @@ int32_t AgoraManager::start()
 
 	res = 11;
 	writelog("setAudioAgcGain false");
-	if (!setAudioAgcGain(FALSE))
+	if (!setAudioAgcOn(FALSE))
 		goto StartError;
 
 	res = 10;
