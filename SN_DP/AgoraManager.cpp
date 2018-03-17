@@ -701,8 +701,8 @@ int32_t AgoraManager::start()
 		goto StartError;
 
 	res = 10;
-	writelog("setAudioNS false");
-	if (!setAudioNS(FALSE))
+	writelog("setAudioNS true");
+	if (!setAudioNS(true))
 		goto StartError;
 
 	res = 11;
