@@ -528,6 +528,7 @@ void AgoraManager::restart()
 
 BOOL AgoraManager::initParam()
 {
+	this->bChooseKugou = TRUE;
 	this->ChatRoomInfo.bLeft = TRUE;
 	this->ChatRoomInfo.bMix = TRUE;
 	this->ChatRoomInfo.bPublishing = FALSE;
@@ -535,13 +536,13 @@ BOOL AgoraManager::initParam()
 	this->ChatRoomInfo.display_height = 600;
 	this->ChatRoomInfo.display_width = 800;
 	this->ChatRoomInfo.nBitRateVideo = 400;
-	this->ChatRoomInfo.nFps = 15;
-	this->ChatRoomInfo.nHeight = 360;
 	this->ChatRoomInfo.nMicChannel = 2;
 	//this->ChatRoomInfo.nRID = 1111;
 	this->ChatRoomInfo.nSampleRate = 44100;
 	this->ChatRoomInfo.nUID = 1113;
 	this->ChatRoomInfo.nWidth = 480;
+	this->ChatRoomInfo.nHeight = 360;
+	this->ChatRoomInfo.nFps = 15;
 	this->ChatRoomInfo.sCamerName = "Integrated Webcam";
 	this->ChatRoomInfo.sChannelKey = "";
 	this->ChatRoomInfo.sChannelName = "123test_baluoteliz";
@@ -587,14 +588,6 @@ uint32_t AgoraManager::startHook()
 
 uint32_t AgoraManager::stopHook()
 {
-	if (this->pVideoCaptureManager)
-	{
-		this->pVideoCaptureManager->stopCapture();
-		OutputDebugStringA("1....stopCapture\n");
-	}
-	else
-		OutputDebugStringA("1....stopCapture failed\n");
-
 	if (this->bStopKugou)
 	{
 		this->pPlayerCaptureManager->startHook(FALSE, NULL);
@@ -617,7 +610,11 @@ int32_t AgoraManager::start()
 // 	RtcEngineParameters rep(pRTCEngine);
 // 	res = rep.setLogFile("C:\\6RoomsLog\\agoraSDk.log");
 
-	startHook();
+	if (this->bChooseKugou)
+	{
+		writelog("start kugou");
+		startHook();
+	}
 
 // 	res = 1;
 // 
@@ -710,7 +707,7 @@ int32_t AgoraManager::start()
 	if (!setAudioAgcOn(FALSE))
 		goto StartError;
 
-	res = 10;
+	res = 12;
 	writelog("JoinChannel");
 	if (!this->JoinChannel((char*)this->ChatRoomInfo.sChannelName.c_str(), this->ChatRoomInfo.nUID, (char*)this->ChatRoomInfo.sChannelKey.c_str()))
 		goto StartError;
@@ -723,7 +720,14 @@ StartError:
 
 BOOL AgoraManager::stop()
 {
-	stopHook();
+	if (this->pVideoCaptureManager)
+	{
+		this->pVideoCaptureManager->stopCapture();
+		OutputDebugStringA("1....stopCapture\n");
+	}
+	else
+		OutputDebugStringA("1....stopCapture failed\n");
+	//stopHook();
 	this->enableOBServer(FALSE, FALSE);
 	this->LeaveChannel();//close all engine resources
 	this->pRTCEngine->stopPreview();

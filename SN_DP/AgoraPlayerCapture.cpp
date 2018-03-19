@@ -41,47 +41,49 @@ int ninclen = 0;
 int nincdatalen = 0;
 void CAudioCaptureCallback::onCapturedData(void* data, UINT dataLen, WAVEFORMATEX* format)
 {
-	if (bIsDebugMode){
-
-		static int nCountAudioCallBack = 0;
-		nCountAudioCallBack++;
-		static DWORD dwLastStamp = GetTickCount();
-		DWORD dwCurrStamp = GetTickCount();
-		if (5000 < dwCurrStamp - dwLastStamp){
-
-			float fRecordAudioFrame = nCountAudioCallBack * 1000.0 / (dwCurrStamp - dwLastStamp);
-			char logMsg[128] = { '\0' };
-			sprintf_s(logMsg, "onCapturedData : %d,%d,16,%d [ MusicSrc Rate : %.2f]\n", dataLen,format->nChannels, format->nSamplesPerSec, fRecordAudioFrame);
-			OutputDebugStringA(logMsg);
-
-			FILE* log;
-			log = fopen("./V6room/PlayerHookerV6_1.log", ("a+"));
-			if (log != NULL)
-			{
-				SYSTEMTIME st;
-				GetLocalTime(&st);
-				fprintf(log, "%d%02d%02d-%02d%02d%02d%03d:  %s", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, logMsg);
-				fclose(log);
-			}
-
-			dwLastStamp = dwCurrStamp;
-			nCountAudioCallBack = 0;
-		}
-	}
-
-	pAgoraManager->pPlayerCaptureManager->getCircleBufferObject()->writeBuffer(data, dataLen);
-
-	if (bIsSaveDumpPcm)
+	if (pAgoraManager->bChooseKugou)
 	{
-		FILE* outfile = fopen("./V6room/MusicSrc.pcm", "ab+");
-		if (outfile)
+		if (bIsDebugMode) {
+
+			static int nCountAudioCallBack = 0;
+			nCountAudioCallBack++;
+			static DWORD dwLastStamp = GetTickCount();
+			DWORD dwCurrStamp = GetTickCount();
+			if (5000 < dwCurrStamp - dwLastStamp) {
+
+				float fRecordAudioFrame = nCountAudioCallBack * 1000.0 / (dwCurrStamp - dwLastStamp);
+				char logMsg[128] = { '\0' };
+				sprintf_s(logMsg, "onCapturedData : %d,%d,16,%d [ MusicSrc Rate : %.2f]\n", dataLen, format->nChannels, format->nSamplesPerSec, fRecordAudioFrame);
+				OutputDebugStringA(logMsg);
+
+				FILE* log;
+				log = fopen("./V6room/PlayerHookerV6_1.log", ("a+"));
+				if (log != NULL)
+				{
+					SYSTEMTIME st;
+					GetLocalTime(&st);
+					fprintf(log, "%d%02d%02d-%02d%02d%02d%03d:  %s", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, logMsg);
+					fclose(log);
+				}
+
+				dwLastStamp = dwCurrStamp;
+				nCountAudioCallBack = 0;
+			}
+		}
+
+		pAgoraManager->pPlayerCaptureManager->getCircleBufferObject()->writeBuffer(data, dataLen);
+
+		if (bIsSaveDumpPcm)
 		{
-			fwrite(data, 1, dataLen, outfile);
-			fclose(outfile);
-			outfile = NULL;
+			FILE* outfile = fopen("./V6room/MusicSrc.pcm", "ab+");
+			if (outfile)
+			{
+				fwrite(data, 1, dataLen, outfile);
+				fclose(outfile);
+				outfile = NULL;
+			}
 		}
 	}
-
 // 	ninclen ++;
 // 	nincdatalen += dataLen;
 // 	DWORD timenow = timeGetTime();

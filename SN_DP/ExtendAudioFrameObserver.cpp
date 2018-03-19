@@ -63,83 +63,71 @@ BOOL mixAudioData(char* psrc, char* pdst, int datalen)
 // FILE * outfile = NULL;
 bool CExtendAudioFrameObserver::onRecordAudioFrame(AudioFrame& audioFrame)
 {
-	SIZE_T nSize = audioFrame.channels*audioFrame.samples * 2;
+	if (pAgoraManager->bChooseKugou)
+	{
+		SIZE_T nSize = audioFrame.channels*audioFrame.samples * 2;
 
-	if (bIsDebugMode){
+		if (bIsDebugMode) {
 
-		static int nCountAudioCallBack = 0;
-		nCountAudioCallBack++;
-		static DWORD dwLastStamp = GetTickCount();
-		DWORD dwCurrStamp = GetTickCount();
-		if (5000 < dwCurrStamp - dwLastStamp){
+			static int nCountAudioCallBack = 0;
+			nCountAudioCallBack++;
+			static DWORD dwLastStamp = GetTickCount();
+			DWORD dwCurrStamp = GetTickCount();
+			if (5000 < dwCurrStamp - dwLastStamp) {
 
-			float fRecordAudioFrame = nCountAudioCallBack * 1000.0 / (dwCurrStamp - dwLastStamp);
-			char logMsg[128] = { '\0' };
-			sprintf_s(logMsg, "RecordAudioFrame :%d , %d,16,%d [ Rate : %.2f]\n", nSize,audioFrame.channels, audioFrame.samplesPerSec, fRecordAudioFrame);
-			OutputDebugStringA(logMsg);
+				float fRecordAudioFrame = nCountAudioCallBack * 1000.0 / (dwCurrStamp - dwLastStamp);
+				char logMsg[128] = { '\0' };
+				sprintf_s(logMsg, "RecordAudioFrame :%d , %d,16,%d [ Rate : %.2f]\n", nSize, audioFrame.channels, audioFrame.samplesPerSec, fRecordAudioFrame);
+				OutputDebugStringA(logMsg);
 
-			FILE* log;
-			log = fopen("./V6room/PlayerHookerV6_1.log", ("a+"));
-			if (log != NULL)
-			{
-				SYSTEMTIME st;
-				GetLocalTime(&st);
-				fprintf(log, "%d%02d%02d-%02d%02d%02d%03d:  %s", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, logMsg);
-				fclose(log);
+				FILE* log;
+				log = fopen("./V6room/PlayerHookerV6_1.log", ("a+"));
+				if (log != NULL)
+				{
+					SYSTEMTIME st;
+					GetLocalTime(&st);
+					fprintf(log, "%d%02d%02d-%02d%02d%02d%03d:  %s", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds, logMsg);
+					fclose(log);
+				}
+
+				dwLastStamp = dwCurrStamp;
+				nCountAudioCallBack = 0;
 			}
-
-			dwLastStamp = dwCurrStamp;
-			nCountAudioCallBack = 0;
 		}
-	}
 
-	unsigned int datalen = 0;
-	pAgoraManager->pPlayerCaptureManager->getCircleBufferObject()->readBuffer(this->pPlayerData, nSize, &datalen);
+		unsigned int datalen = 0;
+		pAgoraManager->pPlayerCaptureManager->getCircleBufferObject()->readBuffer(this->pPlayerData, nSize, &datalen);
 
-	if (bIsSaveDumpPcm)
-	{
-		FILE* outfile1 = fopen("./V6room/MusicDest.pcm", "ab+");
-		if (outfile1)
+		if (bIsSaveDumpPcm)
 		{
-			fwrite(this->pPlayerData, 1, datalen, outfile1);
-			fclose(outfile1);
-			outfile1 = NULL;
+			FILE* outfile1 = fopen("./V6room/MusicDest.pcm", "ab+");
+			if (outfile1)
+			{
+				fwrite(this->pPlayerData, 1, datalen, outfile1);
+				fclose(outfile1);
+				outfile1 = NULL;
+			}
 		}
-	}
 
-//	memcpy(this->pPlayerData, pAgoraManager->pPlayerCaptureManager->pPlayerData, pAgoraManager->pPlayerCaptureManager->nPlayerDataLen);
-	int nMixLen = nSize;
-	if (nSize > 0 && datalen > 0)
-	{
-		int nMixLen = datalen > nSize ? nSize : datalen;
-
-// 		char loginfo[128] = { 0 };
-// 		snprintf(loginfo, 128, "len_need[%d] len[%d] \n", nSize, datalen);
-// 		OutputDebugStringA(loginfo);
-
-// 		FILE* outfile = fopen("e:/player.pcm", "ab+");
-// 		if (outfile)
-// 		{
-// 			fwrite(this->pPlayerData, 1, datalen, outfile);
-// 			fclose(outfile);
-// 			outfile = NULL;
-// 		}
-		//mixAudioData((char*)this->pPlayerData, (char*)audioFrame.buffer, nMixLen);
-		MixerAddS16((int16_t*)audioFrame.buffer, (int16_t*)pPlayerData, (audioFrame.channels * audioFrame.bytesPerSample) *  audioFrame.samples / sizeof(int16_t));
-	}
-
-	if (bIsSaveDumpPcm)
-	{
-		FILE* outfile = fopen("./V6room/FrameMix.pcm", "ab+");
-		if (outfile)
+		int nMixLen = nSize;
+		if (nSize > 0 && datalen > 0)
 		{
-			fwrite(audioFrame.buffer, 1, nMixLen, outfile);
-			fclose(outfile);
-			outfile = NULL;
+			int nMixLen = datalen > nSize ? nSize : datalen;
+			MixerAddS16((int16_t*)audioFrame.buffer, (int16_t*)pPlayerData, (audioFrame.channels * audioFrame.bytesPerSample) *  audioFrame.samples / sizeof(int16_t));
+		}
+
+		if (bIsSaveDumpPcm)
+		{
+			FILE* outfile = fopen("./V6room/FrameMix.pcm", "ab+");
+			if (outfile)
+			{
+				fwrite(audioFrame.buffer, 1, nMixLen, outfile);
+				fclose(outfile);
+				outfile = NULL;
+			}
 		}
 	}
-	//	CAudioCapturePackageQueue::GetInstance()->PopAudioPackage(audioFrame.buffer, &nSize);
-	
+
 	return true;
 }
 

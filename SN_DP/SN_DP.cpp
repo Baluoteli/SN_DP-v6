@@ -177,7 +177,7 @@ void writeFormatLog(const char* fmt, ...)
 LONG WINAPI SNDP_UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionInfo)
 {
 	char s[256];
-	sprintf_s(s, "C:\\SNDP_%010d.dmp", (DWORD)time(NULL));
+	sprintf_s(s, "C:\\6RoomsLog\\SNDP_%010d.dmp", (DWORD)time(NULL));
 	HANDLE hDumpFile = CreateFileA(s, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hDumpFile != INVALID_HANDLE_VALUE)
 	{
@@ -288,6 +288,9 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 int nClientWidth = 0;
 int nClientHeight = 0;
+int nChildHeight = 0;
+int nLeftWidth = 0;
+int nRightWidth = 0;
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 将实例句柄存储在全局变量中
@@ -530,12 +533,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case  WINDOW_HIDESHOW_SHOW:
-		ShowWindow(hWnd, SW_SHOW);
+		MoveWindow(hButtonMin, nClientWidth - 50, 0, 50, NTITLE_HEIGHT, TRUE);
+		MoveWindow(hRenderChildL, 0, NTITLE_HEIGHT, nLeftWidth, nChildHeight, TRUE);
+		MoveWindow(hRenderChildR, nLeftWidth, NTITLE_HEIGHT, nLeftWidth, nChildHeight, TRUE);
+		MoveWindow(hWnd, 300, 200, nClientWidth, nClientHeight, TRUE);
 		if (!bTopMost)
 		{
 			SetWindowPos(hWnd, HWND_TOPMOST, 300, 200, nClientWidth, nClientHeight, SWP_NOSIZE);
 			bTopMost = TRUE;
 		}
+		writelog("c[%d][%d] childw[%d]", nClientWidth, nClientHeight, nLeftWidth);
+		ShowWindow(hWnd, SW_SHOW);
 		break;
 	case WINDOW_HIDESHOW_HIDE:
 		//ShowWindow(hWnd, SW_HIDE);

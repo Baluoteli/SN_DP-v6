@@ -22,6 +22,10 @@ extern HWND			hRenderChildR;
 extern int nClientWidth;
 extern int nClientHeight;
 
+extern int nChildHeight;
+extern int nLeftWidth;
+extern int nRightWidth;
+
 static rwlock g_lock;
 bool bQuit = false;
 struct _errmsg_setter
@@ -225,7 +229,16 @@ bool handlevideostart(const std::string& act, std::string &reply)
 		es.set(errCode1002);
 		return true;
 	}
+	RECT RenderRect;
+	SetRect(&RenderRect, 0, 0, pAgoraManager->ChatRoomInfo.display_width, pAgoraManager->ChatRoomInfo.display_height + NTITLE_HEIGHT);
+	AdjustWindowRectEx(&RenderRect, WS_POPUP | WS_MINIMIZEBOX, FALSE, WS_EX_DLGMODALFRAME);
+	
+	nClientWidth = RenderRect.right - RenderRect.left;
+	nClientHeight = RenderRect.bottom - RenderRect.top;
 
+	nChildHeight = pAgoraManager->ChatRoomInfo.display_height;
+	nLeftWidth = pAgoraManager->ChatRoomInfo.display_width / 2;
+	nRightWidth = pAgoraManager->ChatRoomInfo.display_width;
 #ifndef hideWindow
 	SendMessage(hRenderWnd, WINDOW_HIDESHOW_SHOW, NULL, NULL);
 #endif
@@ -471,7 +484,7 @@ bool handlevideosetinitinfo(const std::string& act, std::string &reply)
 		pAgoraManager->RtmpPushInfo.height = User["height"].asInt();
 		pAgoraManager->RtmpPushInfo.fps = User["framerate"].asInt();
 		pAgoraManager->RtmpPushInfo.bitrate = User["bitrate"].asInt();
-		writelog("[%d][%d][%d] [%d][%d][%d]",
+		writelog("c[%d][%d][%d] r[%d][%d][%d]",
 			pAgoraManager->ChatRoomInfo.nWidth,
 			pAgoraManager->ChatRoomInfo.nHeight,
 			pAgoraManager->ChatRoomInfo.nBitRateVideo,
@@ -539,6 +552,13 @@ bool handlevideosetinitinfo(const std::string& act, std::string &reply)
 	MultiByteToWideChar(CP_UTF8, 0, pname.c_str(), -1, wstr, len);
 	len = WideCharToMultiByte(CP_ACP, 0, wstr, -1, NULL, 0, NULL, NULL);
 	WideCharToMultiByte(CP_ACP, 0, wstr, -1, tempname, len, NULL, NULL);
+	pAgoraManager->bChooseKugou = FALSE;
+	if (strcmp(tempname, ("KuGou.exe")) == 0)
+	{
+		writelog("choose kugou");
+		pAgoraManager->bChooseKugou = TRUE;
+	}
+	writelog("player:%s", tempname);
 	std::string abp = tempname;
 	pAgoraManager->ChatRoomInfo.sPlayerPath = abp;
 	////////////////////////////////////encpass//////////////////////////////////////
@@ -645,17 +665,22 @@ bool handlevideosetinitinfo(const std::string& act, std::string &reply)
 		es.set(trycode);
 		return true;
 	}
+	writelog("width-height:[%d][%d]", pAgoraManager->ChatRoomInfo.display_width, pAgoraManager->ChatRoomInfo.display_height);
 
 	////////////////////////////////adjust display rect//////////////////////////////////////////
-	RECT RenderRect;
-	//SetRect(&RenderRect, 0, 0, 1400, 1000);
-	SetRect(&RenderRect, 0, 0, pAgoraManager->ChatRoomInfo.display_width, pAgoraManager->ChatRoomInfo.display_height + NTITLE_HEIGHT);
-	AdjustWindowRectEx(&RenderRect, WS_POPUP | WS_MINIMIZEBOX, FALSE, WS_EX_DLGMODALFRAME);
-
-	//		 GetWindowRect(hRenderWnd, &RenderRect);
-	//		 SetWindowPos(hRenderWnd, HWND_TOPMOST, RenderRect.left, RenderRect.top, pAgoraManager->ChatRoomInfo.nWidth, pAgoraManager->ChatRoomInfo.nHeight, SWP_NOSIZE);
-	nClientWidth = RenderRect.right - RenderRect.left;
-	nClientHeight = RenderRect.bottom - RenderRect.top;
+// 	RECT RenderRect;
+// 	//SetRect(&RenderRect, 0, 0, 1400, 1000);
+// 	SetRect(&RenderRect, 0, 0, pAgoraManager->ChatRoomInfo.display_width, pAgoraManager->ChatRoomInfo.display_height + NTITLE_HEIGHT);
+// 	AdjustWindowRectEx(&RenderRect, WS_POPUP | WS_MINIMIZEBOX, FALSE, WS_EX_DLGMODALFRAME);
+// 
+// 	//		 GetWindowRect(hRenderWnd, &RenderRect);
+// 	//		 SetWindowPos(hRenderWnd, HWND_TOPMOST, RenderRect.left, RenderRect.top, pAgoraManager->ChatRoomInfo.nWidth, pAgoraManager->ChatRoomInfo.nHeight, SWP_NOSIZE);
+// 	nClientWidth = RenderRect.right - RenderRect.left;
+// 	nClientHeight = RenderRect.bottom - RenderRect.top;
+// 
+// 	nChildHeight = pAgoraManager->ChatRoomInfo.display_height;
+// 	nLeftWidth = pAgoraManager->ChatRoomInfo.display_width / 2;
+// 	nRightWidth = pAgoraManager->ChatRoomInfo.display_width;
 	//////////////////////////////////////////////////////////////////////////
 
 	pAgoraManager->RtmpPushInfo.brtmpset = TRUE;
@@ -952,7 +977,7 @@ bool parseact(const std::string& act_de, std::string& reply, std::string& mime)
 	else if (command == "agorastart")
 	{
 		success = handlevideostart(act_dec, reply);
-		writelog("agorastart :%s\n", reply.c_str());
+		writelog("agorastart :%s", reply.c_str());
 	}
 	else if (command == "agorastop")
 	{

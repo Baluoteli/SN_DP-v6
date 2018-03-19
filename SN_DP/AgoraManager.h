@@ -168,6 +168,7 @@ public:
 
 	BOOL bStopKugou;
 	BOOL bHaveHook;
+	BOOL bChooseKugou;
 private:
 
 	BOOL bStartKugou;
