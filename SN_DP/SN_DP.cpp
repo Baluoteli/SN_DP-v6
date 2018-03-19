@@ -152,7 +152,7 @@ void writeFormatLog(const char* fmt, ...)
 	FILE* ffIle = _fsopen("c:/debug.dat", "r", _SH_DENYRW);
 	if (ffIle != NULL)
 	{
-		FILE* fIn = _fsopen("c:/6RoomsLog/agotavideo.log", "ab+", _SH_DENYWR);
+		FILE* fIn = _fsopen("c:/6RoomsLog/agoravideo.log", "ab+", _SH_DENYWR);
 		if (!fIn)
 		{
 			fclose(ffIle);
@@ -549,13 +549,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//ShowWindow(hWnd, SW_HIDE);
 		break;
 	case WM_SIZE:
-		GetWindowRect(hWnd, &curRect);
-		if ((curRect.right - curRect.left) != NCLIENT_WIDTH || (curRect.bottom - curRect.top) != NCLIENT_HEIGHT)
-		{
-			MoveWindow(hRenderChildL, 0, NTITLE_HEIGHT, (curRect.right - curRect.left) / 2, curRect.bottom - curRect.top - NTITLE_HEIGHT, TRUE);
-			MoveWindow(hRenderChildR, (curRect.right - curRect.left) / 2, NTITLE_HEIGHT, (curRect.right - curRect.left) / 2, curRect.bottom - curRect.top - NTITLE_HEIGHT, TRUE);
-			//ShowWindow(hWnd, SW_SHOW);
-		}
+// 		GetWindowRect(hWnd, &curRect);
+// 		if ((curRect.right - curRect.left) != NCLIENT_WIDTH || (curRect.bottom - curRect.top) != NCLIENT_HEIGHT)
+// 		{
+// 			MoveWindow(hRenderChildL, 0, NTITLE_HEIGHT, (curRect.right - curRect.left) / 2, curRect.bottom - curRect.top - NTITLE_HEIGHT, TRUE);
+// 			MoveWindow(hRenderChildR, (curRect.right - curRect.left) / 2, NTITLE_HEIGHT, (curRect.right - curRect.left) / 2, curRect.bottom - curRect.top - NTITLE_HEIGHT, TRUE);
+// 			//ShowWindow(hWnd, SW_SHOW);
+// 			writelog("");
+// 		}
 		break;
 	case WM_MSGID(EID_JOINCHANNEL_SUCCESS):
 		lpData = (LPAGE_JOINCHANNEL_SUCCESS)wParam;
@@ -667,6 +668,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		writelog("wm_destroy");
 		OutputDebugStringA("[ Exit ]..WM_DESTROY\n");
 		pAgoraManager->bStopKugou = TRUE;
+		pAgoraManager->stopHook();
 		pAgoraManager->stop();
 		pAgoraManager->releaseEngine(TRUE);
 		quitSystem();

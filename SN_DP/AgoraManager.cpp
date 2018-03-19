@@ -610,11 +610,7 @@ int32_t AgoraManager::start()
 // 	RtcEngineParameters rep(pRTCEngine);
 // 	res = rep.setLogFile("C:\\6RoomsLog\\agoraSDk.log");
 
-	if (this->bChooseKugou)
-	{
-		writelog("start kugou");
-		startHook();
-	}
+	startHook();
 
 // 	res = 1;
 // 
@@ -657,7 +653,7 @@ int32_t AgoraManager::start()
 		writelog("read config err:%d", ret);
 	if (!SetVideoRenderType(DISPLAY_GDI))
 		goto StartError;
-	writelog("set render type:GDI");
+	writelog("set render type:DISPLAY_GDI");
 
 	res = 4;
 	char* permissionkey = NULL;
@@ -693,17 +689,17 @@ int32_t AgoraManager::start()
 		goto StartError;
 
 	res = 9;
-	writelog("setAudioAES false");
+	writelog("setAudioAES");
 	if (!setAudioAEC(FALSE))
 		goto StartError;
 
 	res = 10;
-	writelog("setAudioNS true");
-	if (!setAudioNS(true))
+	writelog("setAudioNS");
+	if (!setAudioNS(FALSE))
 		goto StartError;
 
 	res = 11;
-	writelog("setAudioAgcGain false");
+	writelog("setAudioAgcGain");
 	if (!setAudioAgcOn(FALSE))
 		goto StartError;
 

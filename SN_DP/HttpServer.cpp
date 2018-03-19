@@ -552,13 +552,6 @@ bool handlevideosetinitinfo(const std::string& act, std::string &reply)
 	MultiByteToWideChar(CP_UTF8, 0, pname.c_str(), -1, wstr, len);
 	len = WideCharToMultiByte(CP_ACP, 0, wstr, -1, NULL, 0, NULL, NULL);
 	WideCharToMultiByte(CP_ACP, 0, wstr, -1, tempname, len, NULL, NULL);
-	pAgoraManager->bChooseKugou = FALSE;
-	if (strcmp(tempname, ("KuGou.exe")) == 0)
-	{
-		writelog("choose kugou");
-		pAgoraManager->bChooseKugou = TRUE;
-	}
-	writelog("player:%s", tempname);
 	std::string abp = tempname;
 	pAgoraManager->ChatRoomInfo.sPlayerPath = abp;
 	////////////////////////////////////encpass//////////////////////////////////////

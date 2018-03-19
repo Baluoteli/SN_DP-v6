@@ -409,7 +409,9 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 			default:
 				break;
 			}
-			memcpy(pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer, pThis->pCaptrueVideoData, pThis->nWidth* pThis->nHeight * 3 / 2);
+
+			if (pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer && pThis->pCaptrueVideoData)
+				memcpy(pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer, pThis->pCaptrueVideoData, pThis->nWidth* pThis->nHeight * 3 / 2);
 
 			if (ph->width != pThis->nWidth || ph->height != pThis->nHeight || !pCaptBuffer)
 			{

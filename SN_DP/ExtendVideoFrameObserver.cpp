@@ -16,7 +16,9 @@ CExtendVideoFrameObserver::CExtendVideoFrameObserver()
 CExtendVideoFrameObserver::~CExtendVideoFrameObserver()
 {
 	delete[] m_lpImageBuffer;
+	m_lpImageBuffer = NULL;
 	delete[] m_lpRenderBuffer;
+	m_lpRenderBuffer = NULL;
 }
 // 
 // void DoMirror(unsigned char* yuv_temp, int nw, int nh, int w,
