@@ -609,37 +609,8 @@ int32_t AgoraManager::start()
 	int res = 0;
 	int ret = 0;
 	BOOL bdone = FALSE;
-// 
-// 	this->initEngine(APP_ID);
-// 	//set hwnd for message post by event_handler
-// 	this->setEventHandler(m_RenderWnd);
-// 	//open log
-// 	RtcEngineParameters rep(pRTCEngine);
-// 	res = rep.setLogFile("C:\\6RoomsLog\\agoraSDk.log");
 
 	startHook();
-
-// 	res = 1;
-// 
-//  	char tempPath[512] = { 0 };
-//  	FILE* playerpath = fopen("./playerpath.txt", "rb");
-//  	if (playerpath == NULL)
-//  	{
-//  		goto StartError;
-//  	}
-//  	int32_t lSize = 0;
-//  	/* 获取文件大小 */
-//  	fseek(playerpath, 0, SEEK_END);
-//  	lSize = ftell(playerpath);
-//  	rewind(playerpath);
-//  	fread(tempPath, 1, lSize, playerpath);
-//  	fclose(playerpath);
-//  
-//  	TCHAR path_temp[256] = { 0 };
-//  	MultiByteToWideChar(CP_UTF8, 0, tempPath, -1, path_temp, lSize);
- 	//this->pPlayerCaptureManager->startHook(TRUE, path_temp);
-
-//	return 0;
 
 	res = 1;
 	writelog("initCapture");
@@ -667,9 +638,6 @@ int32_t AgoraManager::start()
 	writelog("setChannelAndRole");
 	if (!this->setChannelAndRole(CHANNEL_PROFILE_LIVE_BROADCASTING, CLIENT_ROLE_BROADCASTER, permissionkey))
 		goto StartError;
-	//std::string mic = "内装麦克风 (Conexant SmartAudio HD)";
-	//std::string sounder = "扬声器 (Conexant SmartAudio HD)";
-	//this->setDevices(mic, sounder);
 
 	res = 5;
 	writelog("EnableLocalMirrorImage");
@@ -710,7 +678,7 @@ int32_t AgoraManager::start()
 	if (!setAudioAgcOn(FALSE))
 		goto StartError;
 
-	res = 10;
+	res = 12;
 	writelog("JoinChannel");
 	if (!this->JoinChannel((char*)this->ChatRoomInfo.sChannelName.c_str(), this->ChatRoomInfo.nUID, (char*)this->ChatRoomInfo.sChannelKey.c_str()))
 		goto StartError;
