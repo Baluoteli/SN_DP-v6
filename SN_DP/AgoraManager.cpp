@@ -471,7 +471,7 @@ BOOL AgoraManager::setAudioAgcOn(BOOL bEnable /*= FALSE*/)
 	if (bEnable)
 		nRet = apm->setParameters("{\"che.audio.agcOn\":true}");
 	else
-		nRet = apm->setParameters("{\"che.audio.agc\":false}");
+		nRet = apm->setParameters("{\"che.audio.agcOn\":false}");
 
 	return nRet == 0 ? TRUE : FALSE;
 }
@@ -669,8 +669,8 @@ int32_t AgoraManager::start()
 		goto StartError;
 
 	res = 10;
-	writelog("setAudioNS true");
-	if (!setAudioNS(true))
+	writelog("setAudioNS false");
+	if (!setAudioNS(FALSE))
 		goto StartError;
 
 	res = 11;
