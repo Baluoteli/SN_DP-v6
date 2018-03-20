@@ -24,6 +24,8 @@ public:
 	int nBitrate;
 
 	unsigned char* pCaptrueVideoData;
+	uint8_t* m_lpBufferYUVRotate;
+	uint8_t* m_lpBufferYUVMirror;
 
 	//image convert
 	

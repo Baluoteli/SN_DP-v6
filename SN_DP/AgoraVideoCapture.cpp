@@ -9,6 +9,10 @@
 
 #include "AgoraManager.h"
 extern AgoraManager*	pAgoraManager;
+
+#include "libyuv.h"
+#pragma comment(lib,"yuv.lib")
+
 typedef enum
 {
 	I420, YUY2, RGB24, RGB32
@@ -154,6 +158,11 @@ BOOL VideoCaptureManager::initSharedMemory()
 	pp->mapsize = this->dwVideoMapSize;
 
 	this->pCaptrueVideoData = (unsigned char*)malloc(pp->height * pp->width * 4);
+	m_lpBufferYUVRotate = new uint8_t[pp->width * pp->height * 4];
+	ZeroMemory(m_lpBufferYUVRotate, pp->width * pp->height * 4);
+	m_lpBufferYUVMirror = new uint8_t[pp->width * pp->height * 4];
+	ZeroMemory(m_lpBufferYUVMirror, pp->width * pp->height * 4);
+
 	if (!this->pCaptrueVideoData)
 	{
 		return FALSE;
@@ -174,6 +183,17 @@ void VideoCaptureManager::uninitSharedMemory()
 	{
 		free(this->pCaptrueVideoData);
 		this->pCaptrueVideoData = NULL;
+	}
+
+	if (m_lpBufferYUVRotate){
+
+		delete[] m_lpBufferYUVRotate;
+		m_lpBufferYUVRotate = nullptr;
+	}
+	if (m_lpBufferYUVMirror){
+
+		delete[] m_lpBufferYUVMirror;
+		m_lpBufferYUVMirror = nullptr;
 	}
 }
 
@@ -395,7 +415,32 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 					memcpy(pCaptBuffer, bitmapData.Scan0, nPicSize);
 					bitmap->UnlockBits(&bitmapData);
 				}
-				pThis->FormatTrans.RGB32ToI420(pCaptBuffer, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
+				//pThis->FormatTrans.RGB32ToI420(pCaptBuffer, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
+				{
+					//LibYUV rotate/trans
+					int nWidth = pThis->nWidth; int nHeight = pThis->nHeight;
+					unsigned char* src_frame = (uint8_t*)pCaptBuffer;
+					unsigned char* pBuffer_dst_y = (uint8_t*)(pThis->pCaptrueVideoData);
+					int ndst_stride_y = nWidth;
+					unsigned char* pBuffer_dst_u = pBuffer_dst_y + nWidth * nHeight;
+					int ndst_stride_u = nWidth / 2;
+					unsigned char* pBuffer_dst_v = pBuffer_dst_u +  nWidth * nHeight / 4;
+					int ndst_stride_v = nWidth / 2;
+
+					uint8_t* pBuffer_dst_y_rotate180 = pThis->m_lpBufferYUVRotate;
+					uint8_t* pBuffer_dst_u_rotate180 = pThis->m_lpBufferYUVRotate + nWidth * nHeight;
+					uint8_t* pBuffer_dst_v_rotate180 = pThis->m_lpBufferYUVRotate + nWidth * nHeight + nWidth * nHeight / 4;
+
+					uint8_t* pBuffer_dst_y_MirrorHorizion = pThis->m_lpBufferYUVMirror;
+					uint8_t* pBuffer_dst_u_MirrorHorizion = pThis->m_lpBufferYUVMirror + nWidth * nHeight;
+					uint8_t* pBuffer_dst_v_MirrorHorizion = pThis->m_lpBufferYUVMirror + nWidth * nHeight + nWidth * nHeight / 4;
+
+					libyuv::ARGBToI420((unsigned char*)src_frame, nWidth * 4, pBuffer_dst_y, ndst_stride_y, pBuffer_dst_u, ndst_stride_u, pBuffer_dst_v, ndst_stride_v, nWidth, nHeight);
+					libyuv::I420Rotate(pBuffer_dst_y, ndst_stride_y, pBuffer_dst_u, ndst_stride_u, pBuffer_dst_v, ndst_stride_v, pBuffer_dst_y_rotate180, ndst_stride_y, pBuffer_dst_u_rotate180, ndst_stride_u, pBuffer_dst_v_rotate180, ndst_stride_v,
+						nWidth, nHeight, libyuv::RotationMode::kRotate180);
+					libyuv::I420ToI420Mirror(pBuffer_dst_y_rotate180, ndst_stride_y, pBuffer_dst_u_rotate180, ndst_stride_u, pBuffer_dst_v_rotate180, ndst_stride_v,
+						pBuffer_dst_y_MirrorHorizion, ndst_stride_y, pBuffer_dst_u_MirrorHorizion, ndst_stride_u, pBuffer_dst_v_MirrorHorizion, ndst_stride_v, nWidth, nHeight);
+				}
 				break;
 			case RGB24:
 				pThis->FormatTrans.RGB24ToI420(pvideodata, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
@@ -410,8 +455,8 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 				break;
 			}
 
-			if (pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer && pThis->pCaptrueVideoData)
-				memcpy(pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer, pThis->pCaptrueVideoData, pThis->nWidth* pThis->nHeight * 3 / 2);
+			if (pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer && pThis->m_lpBufferYUVMirror)
+				memcpy(pAgoraManager->m_CapVideoFrameObserver->m_lpImageBuffer, pThis->m_lpBufferYUVMirror, pThis->nWidth* pThis->nHeight * 3 / 2);
 
 			if (ph->width != pThis->nWidth || ph->height != pThis->nHeight || !pCaptBuffer)
 			{
