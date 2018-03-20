@@ -471,7 +471,7 @@ BOOL AgoraManager::setAudioAgcOn(BOOL bEnable /*= FALSE*/)
 	if (bEnable)
 		nRet = apm->setParameters("{\"che.audio.agcOn\":true}");
 	else
-		nRet = apm->setParameters("{\"che.audio.agc\":false}");
+		nRet = apm->setParameters("{\"che.audio.agcOn\":false}");
 
 	return nRet == 0 ? TRUE : FALSE;
 }
