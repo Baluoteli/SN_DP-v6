@@ -570,7 +570,6 @@ uint32_t AgoraManager::startHook()
 	if (!this->bStartKugou)
 	{
 		//BOOL b = this->findPlayerPath("kugou.exe", sizeof("kugou.exe"), path_temp);
-		ChatRoomInfo.sPlayerPath = "Kugou.exe";
 		if (this->findPlayerPath((char*)this->ChatRoomInfo.sPlayerPath.c_str(), this->ChatRoomInfo.sPlayerPath.length(), path_temp))
 		{
 			this->bFoundPlayer = true;
