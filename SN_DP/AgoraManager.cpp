@@ -539,13 +539,13 @@ BOOL AgoraManager::initParam()
 	this->ChatRoomInfo.nMicChannel = 2;
 	//this->ChatRoomInfo.nRID = 1111;
 	this->ChatRoomInfo.nSampleRate = 44100;
-	this->ChatRoomInfo.nUID = 1113;
+	this->ChatRoomInfo.nUID = 1112;
 	this->ChatRoomInfo.nWidth = 480;
 	this->ChatRoomInfo.nHeight = 360;
 	this->ChatRoomInfo.nFps = 15;
 	this->ChatRoomInfo.sCamerName = "Integrated Webcam";
 	this->ChatRoomInfo.sChannelKey = "";
-	this->ChatRoomInfo.sChannelName = "123test_baluoteliz";
+	this->ChatRoomInfo.sChannelName = "123test_void";
 	this->ChatRoomInfo.sMicName = "";
 	this->ChatRoomInfo.sPlayerPath = "KuGou.exe";
 	//this->ChatRoomInfo.sPublishUrl = "";
@@ -553,8 +553,8 @@ BOOL AgoraManager::initParam()
 	this->RtmpPushInfo.ip = "aliliveup.6rooms.com";
 	this->RtmpPushInfo.port = "1935";
 	this->RtmpPushInfo.appname = "liverecord";
-	//this->RtmpPushInfo.streamname = "v587";
-	this->RtmpPushInfo.bitrate = 1000;
+	this->RtmpPushInfo.sStreamName = "v587";
+	this->RtmpPushInfo.bitrate = 600;
 	this->RtmpPushInfo.brtmppush = TRUE;
 	this->RtmpPushInfo.brtmpset = TRUE;
 	this->RtmpPushInfo.fps = 15;
@@ -567,20 +567,25 @@ uint32_t AgoraManager::startHook()
 {
 	TCHAR path_temp[256] = { 0 };
 	this->bFoundPlayer = false;//record upload param
-	if (!this->bStartKugou)
+	this->bChooseKugou = this->findPlayerPath((char*)this->ChatRoomInfo.sPlayerPath.c_str(), this->ChatRoomInfo.sPlayerPath.length(), path_temp);
+	if (!this->bStartKugou && this->bChooseKugou)
 	{
 		//BOOL b = this->findPlayerPath("kugou.exe", sizeof("kugou.exe"), path_temp);
-		if (this->findPlayerPath((char*)this->ChatRoomInfo.sPlayerPath.c_str(), this->ChatRoomInfo.sPlayerPath.length(), path_temp))
-		{
+		//ChatRoomInfo.sPlayerPath = "Kugou.exe";
+// 		if (this->findPlayerPath((char*)this->ChatRoomInfo.sPlayerPath.c_str(), this->ChatRoomInfo.sPlayerPath.length(), path_temp))
+// 		{
+//			this->bChooseKugou = true;
 			this->bFoundPlayer = true;
 			this->pPlayerCaptureManager->startHook(TRUE, path_temp);
 			this->bStartKugou = TRUE;
 			bHaveHook = TRUE;
-		}
-		writelog("findPlayerPath:%d", this->bFoundPlayer);
+			//		}
+			writelog("1 findPlayerPath:%d [%s]", this->bChooseKugou, this->ChatRoomInfo.sPlayerPath.c_str());
 		//	this->pPlayerCaptureManager->startHook(TRUE, L"D:\\Program Files (x86)\\KuGou\\KGMusic\\KuGou.exe");
 		OutputDebugStringA("player hook start");
 	}
+	else
+		writelog("not findPlayerPath:%d [%s]", this->bChooseKugou, this->ChatRoomInfo.sPlayerPath.c_str());
 
 	return TRUE;
 }
@@ -715,6 +720,7 @@ StartError:
 
 BOOL AgoraManager::stop()
 {
+	
 	if (this->pVideoCaptureManager)
 	{
 		this->pVideoCaptureManager->stopCapture();

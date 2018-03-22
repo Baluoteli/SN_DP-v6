@@ -87,10 +87,29 @@ VideoCaptureManager::VideoCaptureManager()
 	this->nFps = 15;
 	this->nWidth = 320;
 	this->nHeight = 240;
+	this->pCaptrueVideoData = (unsigned char*)malloc(1920 * 1080 * 4);
+	m_lpBufferYUVRotate = new uint8_t[1920 * 1080 * 4];
+	ZeroMemory(m_lpBufferYUVRotate, 1920 * 1080 * 4);
+	m_lpBufferYUVMirror = new uint8_t[1920 * 1080 * 4];
+	ZeroMemory(m_lpBufferYUVMirror, 1920 * 1080 * 4);
 }
 
 VideoCaptureManager::~VideoCaptureManager()
 {
+	if (this->pCaptrueVideoData)
+	{
+		free(this->pCaptrueVideoData);
+	}
+	if (m_lpBufferYUVRotate) {
+
+		delete[] m_lpBufferYUVRotate;
+		m_lpBufferYUVRotate = nullptr;
+	}
+	if (m_lpBufferYUVMirror) {
+
+		delete[] m_lpBufferYUVMirror;
+		m_lpBufferYUVMirror = nullptr;
+	}
 //	this->stotUpdate();
 	this->closeSharedMemory();
 	if (this->hStartEvent)
@@ -157,11 +176,12 @@ BOOL VideoCaptureManager::initSharedMemory()
 	pp->height = this->nHeight;
 	pp->mapsize = this->dwVideoMapSize;
 
-	this->pCaptrueVideoData = (unsigned char*)malloc(pp->height * pp->width * 4);
-	m_lpBufferYUVRotate = new uint8_t[pp->width * pp->height * 4];
-	ZeroMemory(m_lpBufferYUVRotate, pp->width * pp->height * 4);
-	m_lpBufferYUVMirror = new uint8_t[pp->width * pp->height * 4];
-	ZeroMemory(m_lpBufferYUVMirror, pp->width * pp->height * 4);
+// 	pCaptrueVideoData = new uint8_t[pp->width * pp->height * 4];
+// 	ZeroMemory(pCaptrueVideoData, pp->width * pp->height * 4);
+// 	m_lpBufferYUVRotate = new uint8_t[pp->width * pp->height * 4];
+// 	ZeroMemory(m_lpBufferYUVRotate, pp->width * pp->height * 4);
+// 	m_lpBufferYUVMirror = new uint8_t[pp->width * pp->height * 4];
+// 	ZeroMemory(m_lpBufferYUVMirror, pp->width * pp->height * 4);
 
 	if (!this->pCaptrueVideoData)
 	{
@@ -179,28 +199,28 @@ void VideoCaptureManager::uninitSharedMemory()
 	SetEvent(this->hStopEvent);
 	ResetEvent(this->hStartEvent);
 	ResetEvent(this->hStopEvent);
-	if (this->pCaptrueVideoData)
-	{
-		free(this->pCaptrueVideoData);
-		this->pCaptrueVideoData = NULL;
-	}
+// 	if (this->pCaptrueVideoData)
+// 	{
+// 		delete[] this->pCaptrueVideoData;
+// 		this->pCaptrueVideoData = NULL;
+// 	}
 
-	if (m_lpBufferYUVRotate){
-
-		delete[] m_lpBufferYUVRotate;
-		m_lpBufferYUVRotate = nullptr;
-	}
-	if (m_lpBufferYUVMirror){
-
-		delete[] m_lpBufferYUVMirror;
-		m_lpBufferYUVMirror = nullptr;
-	}
+// 	if (m_lpBufferYUVRotate){
+// 
+// 		delete[] m_lpBufferYUVRotate;
+// 		m_lpBufferYUVRotate = nullptr;
+// 	}
+// 	if (m_lpBufferYUVMirror){
+// 
+// 		delete[] m_lpBufferYUVMirror;
+// 		m_lpBufferYUVMirror = nullptr;
+// 	}
 }
 
 BOOL VideoCaptureManager::startCapture()
 {
-	if (!this->initSharedMemory())
-		return FALSE;
+// 	if (!this->initSharedMemory())
+// 		return FALSE;
 	this->bVideoCapture = TRUE;
 	this->hVideoFlush = CreateThread(NULL, 0, VideoCaptureManager::VideoBufferFlashThread, this, 0, 0);
 	if (!this->hVideoFlush)
@@ -214,7 +234,7 @@ void VideoCaptureManager::stopCapture()
 	WaitForSingleObject(this->hVideoFlush, INFINITE);
 	CloseHandle(this->hVideoFlush);
 	this->hVideoFlush = NULL;
-	this->uninitSharedMemory();
+	//this->uninitSharedMemory();
 }
 
 //  BOOL WriteBMP(char* inPic, int width, int height, int bitsCount, TCHAR* strFileName)
@@ -347,6 +367,11 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 {
 	VideoCaptureManager* pThis = (VideoCaptureManager*)lparam;
 
+	if (!pThis->initSharedMemory())
+	{
+		writelog("init shared memory error");
+		return FALSE;
+	}
 	Graphics* g = NULL;
 	Bitmap* bitmap = NULL;
 	bitmap = new Bitmap(pThis->nWidth, pThis->nHeight, PixelFormat32bppARGB);
@@ -442,16 +467,17 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 						pBuffer_dst_y_MirrorHorizion, ndst_stride_y, pBuffer_dst_u_MirrorHorizion, ndst_stride_u, pBuffer_dst_v_MirrorHorizion, ndst_stride_v, nWidth, nHeight);
 				}
 				break;
-			case RGB24:
-				pThis->FormatTrans.RGB24ToI420(pvideodata, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
-				break;
-			case YUY2:
-				pThis->FormatTrans.YUY2ToI420(pvideodata, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
-				break;
-			case I420:
-				memcpy(pThis->pCaptrueVideoData, pvideodata, ndatasize);
-				break;
+// 			case RGB24:
+// 				pThis->FormatTrans.RGB24ToI420(pvideodata, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
+// 				break;
+// 			case YUY2:
+// 				pThis->FormatTrans.YUY2ToI420(pvideodata, pThis->pCaptrueVideoData, nPicSize, pThis->nWidth, pThis->nHeight);
+// 				break;
+// 			case I420:
+// 				memcpy(pThis->pCaptrueVideoData, pvideodata, ndatasize);
+// 				break;
 			default:
+				writelog("error type:%d", ntype);
 				break;
 			}
 
@@ -485,6 +511,7 @@ DWORD VideoCaptureManager::VideoBufferFlashThread(LPVOID lparam)
 		CloseHandle(pThis->hTimerEvent);
 		pThis->hTimerEvent = NULL;
 	}
+	pThis->uninitSharedMemory();
 	return 0;
 }
 

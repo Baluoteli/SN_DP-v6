@@ -131,7 +131,7 @@ HOOK_AUDIO_API bool InstallHookAudio(const TCHAR* pHookPlayerFilePath)
 	}
 	
 	CAudioDataHooker::ms_log.Trace(_T("InstallHookAudio g_Hook: %x \n"),g_hook);
-	if (g_hook && FALSE)
+	if (g_hook)
 	{
 		CAudioDataHooker::Instance()->StopWork();
 		UnhookWindowsHookEx(g_hook);

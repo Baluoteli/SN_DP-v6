@@ -322,7 +322,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		return FALSE;
 	}
 
-	ShowWindow(hRenderWnd, nCmdShow);
+//	ShowWindow(hRenderWnd, nCmdShow);
 	UpdateWindow(hRenderWnd);
 
 	return TRUE;
@@ -537,16 +537,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		MoveWindow(hRenderChildL, 0, NTITLE_HEIGHT, nLeftWidth, nChildHeight, TRUE);
 		MoveWindow(hRenderChildR, nLeftWidth, NTITLE_HEIGHT, nLeftWidth, nChildHeight, TRUE);
 		MoveWindow(hWnd, 300, 200, nClientWidth, nClientHeight, TRUE);
+		writelog("c[%d][%d] childw[%d]", nClientWidth, nClientHeight, nLeftWidth);
+		ShowWindow(hWnd, SW_SHOW);
 		if (!bTopMost)
 		{
 			SetWindowPos(hWnd, HWND_TOPMOST, 300, 200, nClientWidth, nClientHeight, SWP_NOSIZE);
 			bTopMost = TRUE;
 		}
-		writelog("c[%d][%d] childw[%d]", nClientWidth, nClientHeight, nLeftWidth);
-		ShowWindow(hWnd, SW_SHOW);
 		break;
 	case WINDOW_HIDESHOW_HIDE:
-		//ShowWindow(hWnd, SW_HIDE);
+		ShowWindow(hWnd, SW_HIDE);
 		break;
 	case WM_SIZE:
 // 		GetWindowRect(hWnd, &curRect);

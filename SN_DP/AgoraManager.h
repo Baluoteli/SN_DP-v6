@@ -168,10 +168,10 @@ public:
 
 	BOOL bStopKugou;
 	BOOL bHaveHook;
+	BOOL bStartKugou;
 	BOOL bChooseKugou;
 private:
 
-	BOOL bStartKugou;
 
 	FILE *fRendMode;
 	HWND m_RenderWnd;

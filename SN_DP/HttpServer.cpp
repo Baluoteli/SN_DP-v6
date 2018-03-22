@@ -554,6 +554,7 @@ bool handlevideosetinitinfo(const std::string& act, std::string &reply)
 	WideCharToMultiByte(CP_ACP, 0, wstr, -1, tempname, len, NULL, NULL);
 	std::string abp = tempname;
 	pAgoraManager->ChatRoomInfo.sPlayerPath = abp;
+	writelog("set player:%s", abp.c_str());
 	////////////////////////////////////encpass//////////////////////////////////////
 	std::string encpass, se;
 	if (!getparam(act, std::string("encpass="), encpass) || encpass.length() == 0)

@@ -4,6 +4,7 @@
 //
 
 #pragma once
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #include "targetver.h"
 
@@ -17,8 +18,8 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-#include <stdint.h>
-
+#include <string>
+#include <atlstr.h>
 
 #include <IAgoraRtcEngine.h>
 #include <IAgoraMediaEngine.h>
@@ -30,10 +31,10 @@ using namespace agora::media;
 // #include "IAgoraMediaEngine.h"
 // #include "IAgoraRtcEngine.h"
 #include "AGEngineEventHandler.h"
-//#define APP_ID "570465840e604903811de2f3a72d174b"		//六间房正式ID
+#define APP_ID "570465840e604903811de2f3a72d174b"		//六间房正式ID
 //#define APP_ID "f4637604af81440596a54254d53ade20"
-#define APP_ID "aab8b8f5a8cd4469a63042fcfafe7063"	//声网测试ID
-//#define NEED_PING
+//#define APP_ID "aab8b8f5a8cd4469a63042fcfafe7063"	//声网测试ID
+#define NEED_PING
 
 
 #define NCLIENT_WIDTH 640
